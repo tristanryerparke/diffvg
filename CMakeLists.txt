@@ -131,7 +131,7 @@ string( REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RE
 string( REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
 if(NOT WIN32)
-    find_package(TensorFlow)
+    # find_package(TensorFlow)
     if(TensorFlow_FOUND)
         add_subdirectory(pydiffvg_tensorflow/custom_ops)
     else()
