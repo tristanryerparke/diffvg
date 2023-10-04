@@ -6,9 +6,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(WIN32)
-    find_package(Python 3.10 COMPONENTS Development REQUIRED)
+    find_package(Python 3.11 COMPONENTS Development REQUIRED)
 else()
-    find_package(Python 3.10 COMPONENTS Development REQUIRED)
+    find_package(Python 3.11 COMPONENTS Development REQUIRED)
 endif()
 add_subdirectory(pybind11)
 
