@@ -164,8 +164,8 @@ def from_svg_path(path_str, shape_to_canvas = torch.eye(3), force_close = False,
                     assert(e.end.imag == points[0][1])
                 else:
                     points.append((e.end.real, e.end.imag))
-        points = torch.tensor(points, dtype=torch.float)
-        points = torch.cat((points, torch.ones([points.shape[0], 1])), dim = 1) @ torch.transpose(shape_to_canvas, 0, 1)
+        points = torch.tensor(points, dtype=torch.float, device=device)
+        points = torch.cat((points, torch.ones([points.shape[0], 1], device=device)), dim = 1) @ torch.transpose(shape_to_canvas, 0, 1)
         points = points / points[:, 2:3]
         points = points[:, :2].contiguous()
         ret_paths.append(Path(torch.tensor(num_control_points), points, subpath.isclosed()))
