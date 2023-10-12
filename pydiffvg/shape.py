@@ -60,7 +60,7 @@ class ShapeGroup:
         self.shape_to_canvas = shape_to_canvas
         self.id = id
 
-def from_svg_path(path_str, shape_to_canvas = torch.eye(3), force_close = False):
+def from_svg_path(path_str, shape_to_canvas = torch.eye(3), force_close = False, device='cpu'):
     path = svgpathtools.parse_path(path_str)
     if len(path) == 0:
         return []
