@@ -61,6 +61,7 @@ class ShapeGroup:
         self.id = id
 
 def from_svg_path(path_str, shape_to_canvas = torch.eye(3), force_close = False, device='cpu'):
+    shape_to_canvas = shape_to_canvas.to(device)
     path = svgpathtools.parse_path(path_str)
     if len(path) == 0:
         return []
@@ -168,5 +169,5 @@ def from_svg_path(path_str, shape_to_canvas = torch.eye(3), force_close = False,
         points = torch.cat((points, torch.ones([points.shape[0], 1], device=device)), dim = 1) @ torch.transpose(shape_to_canvas, 0, 1)
         points = points / points[:, 2:3]
         points = points[:, :2].contiguous()
-        ret_paths.append(Path(torch.tensor(num_control_points), points, subpath.isclosed()))
+        ret_paths.append(Path(torch.tensor(num_control_points, device=device), points, subpath.isclosed()))
     return ret_paths
