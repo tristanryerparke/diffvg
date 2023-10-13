@@ -89,65 +89,67 @@ Vector2f sample_boundary(const Path &path,
                          BoundaryData &data,
                          float stroke_perturb_direction,
                          float stroke_radius) {
-    // if (stroke_perturb_direction != 0.f && !path.is_closed) {
-    //     // We need to samples the "caps" of the path
-    //     // length of a cap is pi * abs(stroke_perturb_direction)
-    //     // there are two caps
-    //     auto cap_length = 0.f;
-    //     if (path.thickness != nullptr) {
-    //         auto r0 = path.thickness[0];
-    //         auto r1 = path.thickness[path.num_points - 1];
-    //         cap_length = float(M_PI) * (r0 + r1);
-    //     } else {
-    //         cap_length = 2 * float(M_PI) * stroke_radius;
-    //     }
-    //     auto cap_prob = cap_length / (cap_length + path_length);
-    //     if (t < cap_prob) {
-    //         t = t / cap_prob;
-    //         pdf *= cap_prob;
-    //         auto r0 = stroke_radius;
-    //         auto r1 = stroke_radius;
-    //         if (path.thickness != nullptr) {
-    //             r0 = path.thickness[0];
-    //             r1 = path.thickness[path.num_points - 1];
-    //         }
-    //         // HACK: in theory we want to compute the tangent and
-    //         //       sample the hemi-circle, but here we just sample the
-    //         //       full circle since it's less typing
-    //         if (stroke_perturb_direction < 0) {
-    //             // Sample the cap at the beginning
-    //             auto p0 = Vector2f{path.points[0], path.points[1]};
-    //             auto offset = Vector2f{
-    //                 r0 * cos(2 * float(M_PI) * t),
-    //                 r0 * sin(2 * float(M_PI) * t)
-    //             };
-    //             normal = normalize(offset);
-    //             pdf /= (2 * float(M_PI) * r0);
-    //             data.path.base_point_id = 0;
-    //             data.path.point_id = 0;
-    //             data.path.t = 0;
-    //             return p0 + offset;
-    //         } else {
-    //             // Sample the cap at the end
-    //             auto p0 = Vector2f{path.points[2 * (path.num_points - 1)],
-    //                                path.points[2 * (path.num_points - 1) + 1]};
-    //             auto offset = Vector2f{
-    //                 r1 * cos(2 * float(M_PI) * t),
-    //                 r1 * sin(2 * float(M_PI) * t)
-    //             };
-    //             normal = normalize(offset);
-    //             pdf /= (2 * float(M_PI) * r1);
-    //             data.path.base_point_id = path.num_base_points - 1;
-    //             data.path.point_id = path.num_points - 2 - 
-    //                                  path.num_control_points[data.path.base_point_id];
-    //             data.path.t = 1;
-    //             return p0 + offset;
-    //         }
-    //     } else {
-    //         t = (t - cap_prob) / (1 - cap_prob);
-    //         pdf *= (1 - cap_prob);
-    //     }
-    // }
+    if (stroke_perturb_direction != 0.f && !path.is_closed) {
+        // We need to samples the "caps" of the path
+        // length of a cap is pi * abs(stroke_perturb_direction)
+        // there are two caps
+        if (path.num_control_points[sample_id] != 1) {
+            auto cap_length = 0.f;
+            if (path.thickness != nullptr) {
+                auto r0 = path.thickness[0];
+                auto r1 = path.thickness[path.num_points - 1];
+                cap_length = float(M_PI) * (r0 + r1);
+            } else {
+                cap_length = 2 * float(M_PI) * stroke_radius;
+            }
+            auto cap_prob = cap_length / (cap_length + path_length);
+            if (t < cap_prob) {
+                t = t / cap_prob;
+                pdf *= cap_prob;
+                auto r0 = stroke_radius;
+                auto r1 = stroke_radius;
+                if (path.thickness != nullptr) {
+                    r0 = path.thickness[0];
+                    r1 = path.thickness[path.num_points - 1];
+                }
+                // HACK: in theory we want to compute the tangent and
+                //       sample the hemi-circle, but here we just sample the
+                //       full circle since it's less typing
+                if (stroke_perturb_direction < 0) {
+                    // Sample the cap at the beginning
+                    auto p0 = Vector2f{path.points[0], path.points[1]};
+                    auto offset = Vector2f{
+                        r0 * cos(2 * float(M_PI) * t),
+                        r0 * sin(2 * float(M_PI) * t)
+                    };
+                    normal = normalize(offset);
+                    pdf /= (2 * float(M_PI) * r0);
+                    data.path.base_point_id = 0;
+                    data.path.point_id = 0;
+                    data.path.t = 0;
+                    return p0 + offset;
+                } else {
+                    // Sample the cap at the end
+                    auto p0 = Vector2f{path.points[2 * (path.num_points - 1)],
+                                       path.points[2 * (path.num_points - 1) + 1]};
+                    auto offset = Vector2f{
+                        r1 * cos(2 * float(M_PI) * t),
+                        r1 * sin(2 * float(M_PI) * t)
+                    };
+                    normal = normalize(offset);
+                    pdf /= (2 * float(M_PI) * r1);
+                    data.path.base_point_id = path.num_base_points - 1;
+                    data.path.point_id = path.num_points - 2 - 
+                                         path.num_control_points[data.path.base_point_id];
+                    data.path.t = 1;
+                    return p0 + offset;
+                }
+            } else {
+                t = (t - cap_prob) / (1 - cap_prob);
+                pdf *= (1 - cap_prob);
+            }
+        }
+    }
     // Binary search on path_length_cdf
     auto sample_id = sample(path_length_cdf,
                             path.num_base_points,
